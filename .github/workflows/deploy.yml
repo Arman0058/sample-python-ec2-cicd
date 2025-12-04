@@ -24,6 +24,11 @@ jobs:
           pip install --upgrade pip
           pip install -r requirements.txt
 
+      - name: Debug env
+        run: |
+          echo "EC2_USER=${EC2_USER}"
+          echo "EC2_HOST=${EC2_HOST}"
+
       - name: Deploy to EC2 via SSH
         env:
           EC2_HOST: ${{ secrets.EC2_HOST }}
@@ -34,11 +39,12 @@ jobs:
           echo "$EC2_SSH_KEY" > private_key.pem
           chmod 600 private_key.pem
 
+          echo "Connecting to ${EC2_USER}@${EC2_HOST}"
           rsync -avz -e "ssh -i private_key.pem -o StrictHostKeyChecking=no" \
-            --exclude=".git" . $EC2_USER@$EC2_HOST:$EC2_PY_APP_DIR
+            --exclude=".git" . ${EC2_USER}@${EC2_HOST}:${EC2_PY_APP_DIR}
 
-          ssh -i private_key.pem -o StrictHostKeyChecking=no $EC2_USER@$EC2_HOST << EOF
-            cd $EC2_PY_APP_DIR
+          ssh -i private_key.pem -o StrictHostKeyChecking=no ${EC2_USER}@${EC2_HOST} << EOF
+            cd ${EC2_PY_APP_DIR}
             python3 -m venv venv
             source venv/bin/activate
             pip install --upgrade pip
