@@ -1,3 +1,27 @@
+name: CI/CD Python Flask to EC2
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Set up job
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.9"
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install flask gunicorn
+
       - name: Deploy to EC2 via SSH
         env:
           EC2_SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
